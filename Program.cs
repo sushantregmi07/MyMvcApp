@@ -1,3 +1,6 @@
+using MyMvcApp.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,7 +13,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-app.Urls.Add("http://0.0.0.0:80");
+// Configure URLs for different environments
+if (app.Environment.IsDevelopment())
+{
+    app.Urls.Add("http://localhost:5000");
+}
+else
+{
+    app.Urls.Add("http://0.0.0.0:80");
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
