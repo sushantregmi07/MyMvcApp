@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # .NET MVC app container
+  web:
+    build: .
+    container_name: mymvcapp
+    ports:
+      - "5256:80"  # Mapping http://localhost:5256 to container's port 80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Username=admin;Password=password;Database=mymvcappdb
+    depends_on:
+      - db  # This ensures that PostgreSQL starts before the web app
+
+  # PostgreSQL container
+  db:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mymvcappdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  # Exposing PostgreSQL on port 5432
+
+  # Jenkins container
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8081:8080"  # Jenkins UI
+      - "50000:50000" # Jenkins agents
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    environment:
+      JENKINS_OPTS: "--prefix=/jenkins"
+
+volumes:
+  postgres-data:
+  jenkins-data:
